@@ -49,3 +49,15 @@ class TestTruncateText:
         result = truncate_text("a" * 200, 100)
         assert len(result) == 100
         assert result.endswith("...")
+
+
+class TestFormatOrderSummaryWithStatus:
+    def test_summary_with_pending_status(self):
+        from src.models.order import OrderStatus
+        result = format_order_summary(1, 2, 50.0, OrderStatus.PENDING.value)
+        assert "PENDING" in result
+
+    def test_summary_with_delivered_status(self):
+        from src.models.order import OrderStatus
+        result = format_order_summary(1, 1, 25.0, OrderStatus.DELIVERED.value)
+        assert "DELIVERED" in result

@@ -71,3 +71,31 @@ class TestOrder:
     def test_cannot_cancel_delivered(self):
         order = self.make_order(status=OrderStatus.DELIVERED)
         assert order.can_cancel() is False
+
+
+class TestOrderSerialization:
+    """Tests that cover order serialization — sensitive to enum value changes."""
+
+    def test_status_value_is_lowercase(self):
+        order = Order(id=1, user_id=1, status=OrderStatus.PENDING)
+        assert order.status.value == "pending"
+
+    def test_status_value_confirmed(self):
+        order = Order(id=1, user_id=1, status=OrderStatus.CONFIRMED)
+        assert order.status.value == "confirmed"
+
+    def test_status_value_shipped(self):
+        order = Order(id=1, user_id=1, status=OrderStatus.SHIPPED)
+        assert order.status.value == "shipped"
+
+    def test_serialize_order_status(self):
+        """Simulates JSON serialization of order."""
+        order = Order(id=1, user_id=1, status=OrderStatus.DELIVERED)
+        serialized = {"id": order.id, "status": order.status.value}
+        assert serialized == {"id": 1, "status": "delivered"}
+
+    def test_deserialize_order_status(self):
+        """Simulates restoring order from stored data."""
+        stored_status = "cancelled"
+        status = OrderStatus(stored_status)
+        assert status == OrderStatus.CANCELLED

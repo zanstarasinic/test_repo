@@ -5,11 +5,15 @@ from datetime import datetime
 
 
 class OrderStatus(Enum):
-    PENDING = "pending"
-    CONFIRMED = "confirmed"
-    SHIPPED = "shipped"
-    DELIVERED = "delivered"
-    CANCELLED = "cancelled"
+    # CHANGED: values now use UPPER_SNAKE_CASE
+    PENDING = "PENDING"
+    CONFIRMED = "CONFIRMED"
+    PROCESSING = "PROCESSING"  # NEW status between confirmed and shipped
+    SHIPPED = "SHIPPED"
+    IN_TRANSIT = "IN_TRANSIT"  # NEW status between shipped and delivered
+    DELIVERED = "DELIVERED"
+    CANCELLED = "CANCELLED"
+    REFUNDED = "REFUNDED"  # NEW status
 
 
 @dataclass
@@ -38,21 +42,22 @@ class Order:
         return round(sum(item.total for item in self.items), 2)
 
     def calculate_tax(self, tax_rate: float = 0.08) -> float:
-        """Calculate tax on the subtotal."""
         return round(self.subtotal * tax_rate, 2)
 
     def calculate_shipping(self) -> float:
-        """Free shipping over $50, otherwise $5.99."""
         if self.subtotal >= 50:
             return 0.0
         return 5.99
 
     def calculate_total(self, tax_rate: float = 0.08) -> float:
-        """Calculate order total including tax and shipping."""
         return round(
             self.subtotal + self.calculate_tax(tax_rate) + self.calculate_shipping(),
             2,
         )
 
     def can_cancel(self) -> bool:
-        return self.status in (OrderStatus.PENDING, OrderStatus.CONFIRMED)
+        return self.status in (
+            OrderStatus.PENDING,
+            OrderStatus.CONFIRMED,
+            OrderStatus.PROCESSING,
+        )

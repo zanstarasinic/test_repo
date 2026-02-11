@@ -1,6 +1,7 @@
 from typing import List, Optional
 from dataclasses import dataclass
 from enum import Enum
+from datetime import datetime
 
 
 class NotificationType(Enum):
@@ -12,12 +13,21 @@ class NotificationType(Enum):
     PRICE_DROP = "price_drop"
 
 
+class NotificationPriority(Enum):
+    LOW = "low"
+    NORMAL = "normal"
+    HIGH = "high"
+    URGENT = "urgent"
+
+
 @dataclass
 class Notification:
     recipient_email: str
     subject: str
     body: str
     notification_type: NotificationType
+    priority: NotificationPriority = NotificationPriority.NORMAL
+    timestamp: Optional[datetime] = None
 
 
 class NotificationService:
@@ -26,36 +36,45 @@ class NotificationService:
     def __init__(self):
         self.sent_notifications: List[Notification] = []
 
-    def send_order_confirmation(self, email: str, order_id: int, total: float) -> Notification:
+    # CHANGED: added required `user_name` param, added `priority` param
+    def send_order_confirmation(
+        self, email: str, order_id: int, total: float,
+        user_name: str, priority: NotificationPriority = NotificationPriority.NORMAL,
+    ) -> Notification:
         notification = Notification(
             recipient_email=email,
-            subject=f"Order #{order_id} Confirmed",
-            body=f"Your order #{order_id} has been confirmed. Total: ${total:.2f}",
+            subject=f"Order #{order_id} Confirmed - Thank you, {user_name}!",
+            body=f"Hi {user_name}, your order #{order_id} has been confirmed. Total: ${total:.2f}",
             notification_type=NotificationType.ORDER_CONFIRMED,
+            priority=priority,
         )
         self.sent_notifications.append(notification)
         return notification
 
+    # CHANGED: `tracking_number` renamed to `tracking_id`, added `carrier` param
     def send_shipping_notification(
-        self, email: str, order_id: int, tracking_number: str
+        self, email: str, order_id: int, tracking_id: str,
+        carrier: str = "USPS",
     ) -> Notification:
         notification = Notification(
             recipient_email=email,
-            subject=f"Order #{order_id} Shipped",
-            body=f"Your order #{order_id} has been shipped. Tracking: {tracking_number}",
+            subject=f"Order #{order_id} Shipped via {carrier}",
+            body=f"Your order #{order_id} has shipped via {carrier}. Tracking ID: {tracking_id}",
             notification_type=NotificationType.ORDER_SHIPPED,
         )
         self.sent_notifications.append(notification)
         return notification
 
+    # CHANGED: added `threshold` param, renamed `current_stock` -> `remaining`
     def send_low_stock_alert(
-        self, email: str, product_name: str, current_stock: int
+        self, email: str, product_name: str, remaining: int, threshold: int = 10,
     ) -> Notification:
         notification = Notification(
             recipient_email=email,
             subject=f"Low Stock Alert: {product_name}",
-            body=f"{product_name} is running low. Current stock: {current_stock}",
+            body=f"{product_name} stock ({remaining}) is below threshold ({threshold})",
             notification_type=NotificationType.LOW_STOCK,
+            priority=NotificationPriority.HIGH,
         )
         self.sent_notifications.append(notification)
         return notification

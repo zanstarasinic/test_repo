@@ -1,9 +1,9 @@
-name: UnitSauce
+name: Test with UnitSauce
 
 on: [pull_request]
 
 jobs:
-  fix-tests:
+  test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -20,15 +20,9 @@ jobs:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install UnitSauce
-        run: pip install unitsauce
-
       - name: Run UnitSauce
-        run: unitsauce .
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+        uses: zanstarasinic/unitsauce@main
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ steps.app-token.outputs.token }}
+          mode: auto

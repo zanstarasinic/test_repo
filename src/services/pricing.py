@@ -5,7 +5,7 @@ from src.models.user import User
 
 class PricingService:
     """Handles all pricing calculations."""
-
+    tt=5
     BULK_DISCOUNT_THRESHOLD = 5
     BULK_DISCOUNT_RATE = 0.10
     MAX_DISCOUNT = 0.30

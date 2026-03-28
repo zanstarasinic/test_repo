@@ -30,9 +30,11 @@ class User:
     def is_admin(self) -> bool:
         return self.role == UserRole.ADMIN
 
-    def get_display_name(self) -> str:
-        return f"{self.name} ({self.email})"
+    # RENAMED: get_display_name -> format_display_name
+    def format_display_name(self) -> str:
+        return f"{self.name} <{self.email}>"
 
-    def get_discount_percentage(self) -> float:
+    # RENAMED: get_discount_percentage -> get_tier_discount
+    def get_tier_discount(self) -> float:
         tiers = {0: 0.0, 1: 0.05, 2: 0.10, 3: 0.15}
         return tiers.get(self.discount_tier, 0.0)

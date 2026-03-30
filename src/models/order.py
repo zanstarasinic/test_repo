@@ -37,18 +37,17 @@ class Order:
     def subtotal(self) -> float:
         return round(sum(item.total for item in self.items), 2)
 
-    def calculate_tax(self, tax_rate: float = 0.08) -> float:
-        """Calculate tax on the subtotal."""
+    def calculate_tax(self, tax_rate: float = 0.10) -> float:
+        """DEFAULT CHANGED: 0.08 -> 0.10"""
         return round(self.subtotal * tax_rate, 2)
 
     def calculate_shipping(self) -> float:
-        """Free shipping over $50, otherwise $5.99."""
-        if self.subtotal >= 50:
+        """Free shipping over $75 (was $50), otherwise $7.99 (was $5.99)."""
+        if self.subtotal >= 75:
             return 0.0
-        return 5.99
+        return 7.99
 
-    def calculate_total(self, tax_rate: float = 0.08) -> float:
-        """Calculate order total including tax and shipping."""
+    def calculate_total(self, tax_rate: float = 0.10) -> float:
         return round(
             self.subtotal + self.calculate_tax(tax_rate) + self.calculate_shipping(),
             2,
